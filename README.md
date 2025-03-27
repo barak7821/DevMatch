@@ -120,16 +120,3 @@ npm run dev
 This will start both the backend and frontend servers concurrently using `npm-run-all` and `concurrently`.
 Make sure to run this command from the **main project folder**, not from the `frontend` or `backend` subfolders.
 The frontend output will be shown in blue, and the backend in green.
-
----
-
-## Optional: Root-Level Scripts
-
-The following scripts are also available in the root `package.json`. They are not required for running the project, but may be useful if you prefer working with specific parts of the project individually:
-
-- **install:client** – Installs dependencies in the `frontend/` folder.
-- **install:server** – Installs dependencies in the `backend/` folder.
-- **dev:client** – Runs the frontend development server.
-- **dev:server** – Runs the backend development server.
-
-These scripts make it easy to manage both sides of the project from the root without needing to move between folders manually.
