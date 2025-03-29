@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
 import { LuEye, LuEyeClosed } from "react-icons/lu";
 import { Link, useNavigate } from 'react-router-dom';
 import { Notyf } from 'notyf';
@@ -34,7 +34,7 @@ export default function Login() {
         }
     })
 
-    const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         // Check if all fields are filled
@@ -76,16 +76,22 @@ export default function Login() {
 
                 {/* inputs */}
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                    <input onChange={(e) => setEmail(e.target.value)} className="p-3 rounded-xl bg-white text-gray-800 placeholder-gray-500 focus:outline-none" type="email" placeholder='Email' />
+                    <input onChange={(e) => setEmail(e.target.value)} className="p-3 rounded-xl bg-white text-gray-800 placeholder-gray-500 focus:outline-none" value={email} type="email" placeholder='Email' required />
 
                     {/* password */}
                     <div className="relative">
-                        <input onChange={(e) => setPassword(e.target.value)} className="p-3 rounded-xl w-full bg-white text-gray-800 placeholder-gray-500 focus:outline-none" type={isPasswordVisible ? "text" : "password"} placeholder='Password' />
+                        <input onChange={(e) => setPassword(e.target.value)} className="p-3 rounded-xl w-full bg-white text-gray-800 placeholder-gray-500 focus:outline-none" type={isPasswordVisible ? "text" : "password"} value={password} placeholder='Password' required />
                         <button onClick={() => { !isPasswordVisible ? setIsPasswordVisible(true) : setIsPasswordVisible(false) }} className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600" type="button">
                             {isPasswordVisible ? <LuEyeClosed className='cursor-pointer' /> : <LuEye className='cursor-pointer' />}
                         </button>
                     </div>
                     <button type='submit' className="bg-white text-purple-600 font-semibold rounded-xl py-3 w-full hover:scale-105 active:scale-95 duration-300 cursor-pointer">Login</button>
+
+                    {/* Reset Password */}
+                    <span className='relative mb-3'>
+                        <Link to="/reset" className='absolute right-1 text-sm text-white font-semibold cursor-pointer hover:underline'>Forgot your password?</Link>
+                    </span>
+
                 </form>
 
                 {/* Seperator */}
@@ -101,9 +107,10 @@ export default function Login() {
                     Continue with Google
                 </button>
 
+                {/* Register */}
                 <div className="mt-6 text-center">
                     <span className="text-white text-sm">Don't have an account?</span>
-                    <Link to="/signup" className="ml-2 text-white font-bold underline">Register</Link>
+                    <Link to="/signup" className="ml-2 text-sm text-white font-bold underline cursor-pointer">Register</Link>
                 </div>
             </div>
         </div>

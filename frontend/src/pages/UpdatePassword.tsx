@@ -13,8 +13,10 @@ export default function UpdatePassword() {
     const [userData, setUserData] = useState(null)
     const [updatePassword, setUpdatePassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    const [currentPassword, setCurrentPassword] = useState("")
     const [isPasswordVisible, setIsPasswordVisible] = useState(false)
     const [isMatchPassVisible, setIsMatchPassVisible] = useState(false)
+    const [isCurrentPassVisible, setIsCurrentPassVisible] = useState(false)
 
     const getUser = async () => {
         try {
@@ -54,7 +56,8 @@ export default function UpdatePassword() {
             if (confirmPassword !== updatePassword) return notyf.error("The passwords do not match. Please try again.")
 
             const response = await axios.patch(`http://localhost:${import.meta.env.VITE_PORT}/api/user`, {
-                password: updatePassword
+                password: updatePassword,
+                currentPassword
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             })
@@ -65,7 +68,8 @@ export default function UpdatePassword() {
             if (axios.isAxiosError(error)) {
                 if (updatePassword.length < 0) {
                     if (error.response?.status === 404) return notyf.error("User not found. Please try again.")
-                    if (error.response?.status === 400) return notyf.error("New password cannot be the same as the current password.")
+                    if (error.response?.status === 400 && error.response.data?.code === "same_pass") return notyf.error("New password cannot be the same as the current password.")
+                    if (error.response?.status === 400 && error.response.data?.code === "incorrect_current_password") return notyf.error("The current password you entered is incorrect.")
                 }
             }
             notyf.error("Something went wrong. Please try again later.")
@@ -80,23 +84,40 @@ export default function UpdatePassword() {
                     <h1 className="text-2xl font-bold text-white">Settings</h1>
                 </div>
                 <div className="w-full max-w-md">
-                    <form onSubmit={handleSubmit} className="flex flex-col relative gap-1 min-h-[82vh]">
-                        {/* password */}
-                        <label className="text-gray-700 px-3">New Password</label>
-                        <input onChange={(e) => { setUpdatePassword(e.target.value) }} type={isPasswordVisible ? "text" : "password"}
-                            className="p-3 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" placeholder="Enter new password" />
-                        <button onClick={() => setIsPasswordVisible(!isPasswordVisible)} className='absolute right-3 top-11' type="button">
-                            {isPasswordVisible ?
-                                <LuEyeClosed className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" /> :
-                                <LuEye className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" />}
-                        </button>
-                        <input onChange={(e) => { setConfirmPassword(e.target.value) }} type={isMatchPassVisible ? "text" : "password"}
-                            className="p-3 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" placeholder="Confirm new password" />
-                        <button onClick={() => setIsMatchPassVisible(!isMatchPassVisible)} className='absolute right-3 top-24' type="button">
-                            {isMatchPassVisible ?
-                                <LuEyeClosed className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" /> :
-                                <LuEye className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" />}
-                        </button>
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-1 min-h-[82vh]">
+                        {/* current password */}
+                        <label className="text-gray-700 px-3">Current Password</label>
+                        <div className='relative'>
+                            <input onChange={(e) => { setCurrentPassword(e.target.value) }} type={isCurrentPassVisible ? "text" : "password"}
+                                className="p-3 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-300 w-full" placeholder="Enter new password" />
+                            <button onClick={() => setIsCurrentPassVisible(!isCurrentPassVisible)} className='absolute right-3 top-1/2 -translate-y-1/2' type="button">
+                                {isCurrentPassVisible ?
+                                    <LuEyeClosed className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" /> :
+                                    <LuEye className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" />}
+                            </button>
+                        </div>
+                            <p className='text-sm text-gray-500 text-center'>Required only if you already have a password (email signup or added password after Google login).</p>
+                        {/* new password */}
+                        <label className="text-gray-700 px-3 pt-5">New Password</label>
+                        <div className='relative'>
+                            <input onChange={(e) => { setUpdatePassword(e.target.value) }} type={isPasswordVisible ? "text" : "password"}
+                                className="p-3 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-300 w-full" placeholder="Enter new password" />
+                            <button onClick={() => setIsPasswordVisible(!isPasswordVisible)} className='absolute right-3 top-1/2 -translate-y-1/2' type="button">
+                                {isPasswordVisible ?
+                                    <LuEyeClosed className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" /> :
+                                    <LuEye className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" />}
+                            </button>
+                        </div>
+                        {/* confirm password */}
+                        <div className='relative'>
+                            <input onChange={(e) => { setConfirmPassword(e.target.value) }} type={isMatchPassVisible ? "text" : "password"}
+                                className="p-3 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-300 w-full" placeholder="Confirm new password" />
+                            <button onClick={() => setIsMatchPassVisible(!isMatchPassVisible)} className='absolute right-3 top-1/2 -translate-y-1/2' type="button">
+                                {isMatchPassVisible ?
+                                    <LuEyeClosed className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" /> :
+                                    <LuEye className="text-gray-400 cursor-pointer active:text-black active:scale-105 duration-150" />}
+                            </button>
+                        </div>
                         <p className='text-sm text-gray-500 text-center'>Your new password must be between 8 and 20 characters long.</p>
                         <span className='flex mt-auto w-full justify-center'>
                             <button className="bg-blue-600 rounded-xl text-white w-full p-3 mt-4 hover:scale-105 active:scale-95 duration-150" type="submit">Update</button>

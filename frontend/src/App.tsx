@@ -13,6 +13,7 @@ import UpdateEmail from "./pages/UpdateEmail"
 import UpdatePassword from "./pages/UpdatePassword"
 import DeleteAccount from "./pages/DeleteAccount"
 import ProfileImage from "./pages/ProfileImage"
+import PasswordReset from "./pages/PasswordReset"
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Route path="signup" element={<Register />} />
       <Route path="signup/upload" element={<ProfileImage />} />
       <Route path="login" element={<Login />} />
+      <Route path="reset" element={<PasswordReset />} />
       <Route path="*" element={<NotFound />} />
       <Route path="main" element={<ProtectedRoute><Main /></ProtectedRoute>} />
       <Route path="connection" element={<ProtectedRoute><Connection /></ProtectedRoute>} />

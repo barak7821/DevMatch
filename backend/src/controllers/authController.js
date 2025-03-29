@@ -2,6 +2,7 @@ import User from "../models/userModel.js"
 import { hashPassword, checkPassword } from "../utils/passwordUtils.js"
 import jwt from "jsonwebtoken"
 import axios from "axios"
+import { sendOtpEmail } from "../utils/sendOtpEmail.js"
 
 // Controller for user login
 export const login = async (req, res) => {
@@ -112,5 +113,120 @@ export const googleLogin = async (req, res) => {
             return res.status(500).json({ message: "Internal Server Error" })
         }
         res.status(400).json({ message: "Invalid token" })
+    }
+}
+
+// Controller to send OTP
+export const requestReset = async (req, res) => {
+    const { email } = req.body
+
+    // Check if email is provided
+    if (!email) return res.status(400).json({ message: "Email is required" })
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email: email.toLowerCase() })
+
+        // If user doesn't exist, return error
+        if (!user) return res.status(404).json({ message: "User not found" })
+
+        // If the user registered via Google (OAuth), they don't have a password set – cannot reset password
+        if (!user.password) {
+            return res.status(400).json({ code: "reg_google", message: "Cannot reset password for accounts registered with Google" })
+        }
+
+        // Generate a 6-digit random OTP code
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+
+        // Set OTP expiration time to 5 minutes from now
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
+
+        user.otpCode = otpCode
+        user.otpExpiresAt = expiresAt
+        await user.save()
+
+        await sendOtpEmail(user.email, otpCode)
+
+        res.status(200).json({ message: "OTP sent to email" })
+    } catch (error) {
+        console.error("Error in requestReset:", error.message)
+        res.status(500).json({ message: "Something went wrong" })
+    }
+}
+
+// Controller to verify OTP
+export const verifyOtp = async (req, res) => {
+    const { email, otp } = req.body
+
+    // Check if all required fields are provided
+    if (!email || !otp) return res.status(400).json({ message: "Email and OTP are required" })
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email: email.toLowerCase() })
+
+        // Check if user exists and has a valid OTP and expiration
+        if (!user || !user.otpCode || !user.otpExpiresAt)
+            return res.status(400).json({ message: "Invalid or expired code" })
+
+        // Validate OTP code and expiration time
+        const isValid = user.otpCode === otp && user.otpExpiresAt > new Date()
+        if (!isValid) return res.status(400).json({ message: "Invalid or expired code" })
+
+        res.status(200).json({ message: "OTP verified" })
+    } catch (error) {
+        console.error("Error in verifyOtp:", error.message)
+        res.status(500).json({ message: "Something went wrong" })
+    }
+}
+
+// Controller to reset password
+export const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body
+
+    // Check if all required fields are provided
+    if (!email || !otp || !newPassword)
+        return res.status(400).json({ message: "Email, OTP and new password are required" })
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email: email.toLowerCase() })
+        
+        // If the user registered via Google (OAuth), they don't have a password set – cannot reset password
+        if (!user.password) {
+            return res.status(400).json({ message: "Cannot reset password for accounts registered with Google" })
+        }
+
+        // Check if user exists and has a valid OTP and expiration
+        if (!user || !user.otpCode || !user.otpExpiresAt) return res.status(400).json({ message: "Invalid or expired code" })
+
+        // Validate OTP code and expiration time
+        const isValid = user.otpCode === otp && user.otpExpiresAt > new Date()
+        if (!isValid) return res.status(400).json({ message: "Invalid or expired code" })
+
+        // Validate password length
+        if (newPassword.length < 8 || newPassword.length > 20)
+            return res.status(400).json({ message: "Password must be 8-20 characters" })
+
+        // Check if the new password is the same as the current one
+        const isPasswordCorrect = await checkPassword(newPassword, user.password)
+
+        // If passwords match, reject the request
+        if (isPasswordCorrect) {
+            return res.status(401).json({ message: "New password cannot be the same as the current password" })
+        }
+
+        // Hash the new password
+        const hashedPassword = await hashPassword(newPassword)
+
+        user.password = hashedPassword
+        user.otpCode = null
+        user.otpExpiresAt = null
+        await user.save()
+
+        res.status(200).json({ message: "Password reset successful" })
+    } catch (error) {
+        console.error("Error in resetPassword:", error.message)
+        res.status(500).json({ message: "Something went wrong" })
     }
 }

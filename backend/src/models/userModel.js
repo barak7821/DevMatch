@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
         // Account provider (defaults to "local", can be "google", etc.)
         provider: {
             type: String, default: "local"
+        },
+        otpCode: {
+            type: String
+        },
+        otpExpiresAt: {
+            type: Date
         }
     },
     { timestamps: true }  // Automatically adds 'createdAt' and 'updatedAt' fields

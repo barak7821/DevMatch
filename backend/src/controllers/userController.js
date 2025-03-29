@@ -17,10 +17,12 @@ export const getUser = async (req, res) => {
 
 // Controller to update the logged-in user's details
 export const updateUser = async (req, res) => {
-    const { name, email, password } = req.body
+    const { name, email, password, currentPassword } = req.body
     try {
         const userId = req.user.id
         const updateFields = {}
+        const user = await User.findById(userId)
+        if (!user) return res.status(404).json({ message: "User not found" })
 
         // Update other fields if provided
         if (name) updateFields.name = name
@@ -28,27 +30,30 @@ export const updateUser = async (req, res) => {
 
         // If password is provided, validate it and hash it before updating
         if (password) {
-            const user = await User.findById(userId).select("password provider")
-            if (!user) return res.status(404).json({ message: "User not found" })
-
             // Validate password length
             if (password.length < 8 || password.length > 20) {
                 return res.status(400).json({ message: "Password must be between 8 and 20 characters long" })
             }
 
+            // If the user registered via Google and doesn't have a password yet
             if (user.provider === "google" && !user.password) {
                 const hashedPassword = await hashPassword(password)
                 updateFields.password = hashedPassword
             } else {
-                // Check if the new password is different from the current password
+                // Verify that the current password entered matches the user's actual password
+                const verifyPassword = await checkPassword(currentPassword, user.password)
+                if (!verifyPassword) return res.status(400).json({code:"incorrect_current_password" , message: "The current password you entered is incorrect" })
+
+                // Check if the new password is the same as the current one
                 const isPasswordCorrect = await checkPassword(password, user.password)
 
-                // if isPasswordCorrect is false, password are not same so hashed it
                 if (!isPasswordCorrect) {
+                    // Passwords are different – hash and update the new password
                     const hashedPassword = await hashPassword(password)
                     updateFields.password = hashedPassword
                 } else {
-                    return res.status(400).json({ message: "New password cannot be the same as the current password" })
+                    // Passwords are the same – reject the update
+                    return res.status(400).json({ code: "same_pass", message: "New password cannot be the same as the current password" })
                 }
             }
         }

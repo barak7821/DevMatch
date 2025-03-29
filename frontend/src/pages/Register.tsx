@@ -87,12 +87,12 @@ export default function Register() {
 
         {/* inputs */}
         <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-          <input onChange={(e) => setName(e.target.value)} className='p-3 rounded-xl bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type="text" placeholder='Name' />
-          <input onChange={(e) => setEmail(e.target.value)} className='p-3 rounded-xl bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type="email" placeholder='Email' />
+          <input onChange={(e) => setName(e.target.value)} className='p-3 rounded-xl bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type="text" placeholder='Name' value={name} required />
+          <input onChange={(e) => setEmail(e.target.value)} className='p-3 rounded-xl bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type="email" placeholder='Email' value={email} required />
 
           {/* password */}
           <div className='relative'>
-            <input onChange={(e) => setPassword(e.target.value)} className='p-3 rounded-xl w-full bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type={isPasswordVisible ? "text" : "password"} placeholder='Password' />
+            <input onChange={(e) => setPassword(e.target.value)} className='p-3 rounded-xl w-full bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type={isPasswordVisible ? "text" : "password"} placeholder='Password' value={password} required />
             <button onClick={() => { !isPasswordVisible ? setIsPasswordVisible(true) : setIsPasswordVisible(false) }} className='absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600' type="button">
               {isPasswordVisible ? <LuEyeClosed className='cursor-pointer' /> : <LuEye className='cursor-pointer' />}
             </button>
@@ -100,7 +100,7 @@ export default function Register() {
 
           {/* confirm password */}
           <div className='relative'>
-            <input onChange={(e) => { setConfirmPassword(e.target.value) }} className='p-3 rounded-xl w-full bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type={isConfirmPassVisible ? "text" : "password"} placeholder='Confirm Password' />
+            <input onChange={(e) => { setConfirmPassword(e.target.value) }} className='p-3 rounded-xl w-full bg-white text-gray-800 placeholder-gray-500 focus:outline-none' type={isConfirmPassVisible ? "text" : "password"} placeholder='Confirm Password' value={confirmPassword} required />
             <button onClick={() => { !isConfirmPassVisible ? setIsConfirmPassVisible(true) : setIsConfirmPassVisible(false) }} className='absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600' type="button">
               {isConfirmPassVisible ? <LuEyeClosed className='cursor-pointer' /> : <LuEye className='cursor-pointer' />}
             </button>
