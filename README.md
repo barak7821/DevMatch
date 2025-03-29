@@ -36,13 +36,15 @@ A full-stack application that simulates a real-world matching platform, helping 
 ### Backend:
 - **Node.js & Express** for server-side logic.
 - **MongoDB with Mongoose** for database.
+- **Nodemon** for automatic server restarts during development.
 
 ### Authentication & Security:
-- **Google OAuth** for social login.
+- **Google OAuth** for social login. (OAuth2)
 - **JWT** for secure token-based authentication.
 - **DotENV** for managing environment variables.
 - **CORS** for cross-origin access.
 - **Bcrypt** for password hashing.
+- **Nodemailer** for sending password reset emails.
 
 ---
 
@@ -86,7 +88,7 @@ git clone https://github.com/yourusername/devmatch.git
 
 2. Navigate to your project folder:
 ```bash
-cd path/to/your/project
+cd <project folder name>
 ```
 
 3. Install dependencies **from the root project folder** (the one containing both `frontend/` and `backend/`):
@@ -101,11 +103,13 @@ This will install dependencies for both the frontend and backend using `npm-run-
 - Fill in your own values:
 
 **Backend .env**
-```env
+```bash
 PORT=your_port
 MongoDB_URL=your_mongodb_connection_url
 JWT_SECRET=your_jwt_secret_key
-GOOGLE_CLIENT_ID=your_google_client_id
+APP_NAME=your_app_name
+EMAIL_USER=your_email@example.com
+EMAIL_PASS=your_email_app_password
 ```
 
 **Frontend .env**
@@ -113,6 +117,8 @@ GOOGLE_CLIENT_ID=your_google_client_id
 VITE_PORT=your_backend_port
 VITE_GOOGLE_CLIENT_ID=your_google_client_id
 ```
+   
+Make sure to replace the values with your own configuration.
 
 5. Run the project **from the root directory**:
 ```bash
