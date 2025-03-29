@@ -9,6 +9,7 @@ A full-stack application that simulates a real-world matching platform, helping 
 1. **Landing & Authentication**
    - Landing page with a clean design and buttons for login or sign-up.
    - Sign-up and login available via Google OAuth or regular email/password.
+   - Users who forgot their password can request a reset link via email and update their password securely.
    - After signing up, users can upload a profile image or skip this step.
 
 2. **Main Interface**
